@@ -2,21 +2,18 @@
 package com.dekel.client;
 
 
-import io.helidon.common.HelidonServiceLoader;
 import io.helidon.http.Method;
-import io.helidon.spi.HelidonStartupProvider;
 import io.helidon.webclient.api.WebClient;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ServiceLoader;
 
 public class Main {
 
     private static final String HTTP2_COMPATIBLE_URI = "https://gitlab.com";
-    private static final String HTTP2_INCOMPATIBLE_URI = "http://localhost:3031/test";
+    private static final String HTTP2_INCOMPATIBLE_URI = "http://localhost:3030/test";
 
     private Main() {
     }
@@ -61,5 +58,21 @@ public class Main {
         System.out.println("[CLIENT] Testing using client with HTTP2 priority set manually...");
         testHttp2(protocolSpecifiedClient, HTTP2_COMPATIBLE_URI);
         testHttp2(protocolSpecifiedClient, HTTP2_INCOMPATIBLE_URI);
+
+        //query params don't work when h2 is specified?
+        client.method(Method.POST)
+                .uri(new URI("https://webhook.site/1a562b31-adba-4aad-9f9a-e1a56ee4b9cc"))
+                .queryParam("xyz", "test")
+                .protocolId("h2")
+                .request()
+                .getClass();
+
+        client.method(Method.PATCH)
+                .uri(new URI("https://webhook.site/1a562b31-adba-4aad-9f9a-e1a56ee4b9cc?xyz=test"))
+                .protocolId("h2")
+                .request()
+                .getClass();
+
+        System.out.println("[CLIENT] Made requests to webhook.site, check link to see if query params were present in the requests: https://webhook.site/#!/view/1a562b31-adba-4aad-9f9a-e1a56ee4b9cc");
     }
 }
